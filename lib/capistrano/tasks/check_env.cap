@@ -1,0 +1,4 @@
+desc "Print current environment"
+task :check_env do
+  puts "The current stage is: #{fetch(:stage)}"
+end

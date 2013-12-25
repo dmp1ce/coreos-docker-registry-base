@@ -1,0 +1,10 @@
+before 'deploy:check', 'deploy:copy_ssh_config'
+
+namespace :deploy do
+  desc "Copy ssh config"
+  task :copy_ssh_config do
+    on roles(:all) do
+      upload!('config/deploy/files/home/core/.ssh/config', '/home/core/.ssh/config')
+    end 
+  end
+end
