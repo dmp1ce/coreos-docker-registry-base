@@ -1,0 +1,29 @@
+# Systemd and docker related tasks
+desc "Build the Nginx docker image"
+task :build_nginx_image do
+  on roles(:all) do
+    execute "docker build -rm -t=\"nginx\" #{current_path}/containers/nginx/."
+  end
+end
+
+desc "Link systemd unit for Nginx"
+task :link_nginx_unit do
+  on roles(:all) do
+    execute "sudo cp #{current_path}/units/nginx.service /media/state/units"
+  end
+end
+
+desc "Prepare docker and systemd before starting them"
+after 'deploy:published', :build_docker_prepare_systemd do
+  on roles(:all) do
+    Rake::Task["build_nginx_image"].invoke
+    Rake::Task["link_nginx_unit"].invoke
+  end
+end
+
+desc "Restart local systemd services"
+after :build_docker_prepare_systemd, :restart_local_enable_service do
+  on roles(:all) do
+    execute "sudo systemctl restart local-enable.service"
+  end
+end
