@@ -1,0 +1,3 @@
+[submodule "projects/drupal7"]
+	path = projects/drupal7
+	url = /home/david/Projects/coreos-drupal7-project

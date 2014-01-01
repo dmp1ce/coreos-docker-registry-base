@@ -1,3 +1,6 @@
+# -*- mode: ruby -*-
+# vi:set ft=ruby :
+
 # Systemd and docker related tasks
 desc "Build the Nginx docker image"
 task :build_nginx_image do
