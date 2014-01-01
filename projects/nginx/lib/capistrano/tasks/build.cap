@@ -1,0 +1,40 @@
+# Function to determine the current project name.
+def project_name
+  project = File.dirname(__FILE__).match(/.*projects\/(.*)\/lib\/capistrano\/tasks.*/).captures.join()
+end
+  
+# Systemd and docker related tasks
+desc "Build the #{project_name} docker images"
+task "build_#{project_name}_docker_images"do
+  on roles(:all) do
+    # Find all images and build them
+    # Use 'project_name' for tags to avoid naming conflicts.
+    execute "docker build -rm -t=\"nginx\" #{current_path}/projects/#{project_name}/containers/nginx/."
+  end
+end
+
+desc "Link systemd unit for #{project_name}"
+task "link_#{project_name}_systemd_unit" do
+  on roles(:all) do
+    # Prepend with 'project_name' to avoid naming conflicts.
+    execute "sudo cp #{current_path}/projects/#{project_name}/units/nginx-project.service /media/state/units/#{project_name}-project.service"
+  end
+end
+
+desc "Prepare docker and systemd before starting them"
+after 'deploy:published', "build_docker_prepare_systemd_for_#{project_name}" do
+  on roles(:all) do
+    Rake::Task["build_#{project_name}_docker_images"].invoke
+    Rake::Task["link_#{project_name}_systemd_unit"].invoke
+  end
+end
+
+desc "Restart #{project_name} systemd units"
+task "build_#{project_name}_docker_images", "restart_#{project_name}_systemd_units" do
+  on roles(:all) do
+    execute "sudo systemctl restart #{project_name}-project"
+  end
+end
+
+# Add dependency for 'restart_local_enable_service'
+Rake::Task[:restart_local_enable_service].enhance ["build_docker_prepare_systemd_for_#{project_name}"]
