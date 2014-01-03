@@ -1,12 +1,30 @@
 #-*- mode: ruby -*-
 # vi:set ft=ruby :
 
+# Relative path to the projects directory
+def projects_path
+  return "projects"
+end
+
 # Function to determine the current project name.
 def project_name(file_path)
   project = File.dirname(file_path).match(/.*projects\/(.*)\/lib\/capistrano\/tasks.*/).captures.join()
 end
 
+# Funtion to return the complete path to the current project. Requires the file location to be passed as a perameter.
+def current_project_path(current_path, file_path)
+  return "#{current_path}/#{projects_path}/#{project_name(file_path)}"
+end
+
 # Systemd and docker related tasks
+desc "Reload units for restarting"
+task :reload_restart_units do
+  on roles(:all) do
+    Rake::Task["reload_systemd"].invoke
+    Rake::Task["restart_local_enable_service"].invoke
+  end
+end
+
 desc "Restart local systemd services"
 task :restart_local_enable_service do
   on roles(:all) do
@@ -18,5 +36,12 @@ desc "Reload Systemd. Useful update systemd with added or removed units."
 task :reload_systemd do
   on roles(:all) do
     execute "sudo systemctl daemon-reload"
+  end
+end
+
+# Dependency related tasks
+task :reload_restart_units_full_build do
+  on roles(:all) do
+    Rake::Task["reload_restart_units"].invoke
   end
 end
