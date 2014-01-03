@@ -30,7 +30,7 @@ after 'deploy:published', "build_docker_prepare_systemd_for_#{project_name}" do
 end
 
 desc "Restart #{project_name} systemd units"
-task "build_#{project_name}_docker_images", "restart_#{project_name}_systemd_units" do
+after "build_#{project_name}_docker_images", "restart_#{project_name}_systemd_units" do
   on roles(:all) do
     execute "sudo systemctl restart #{project_name}-project"
   end
