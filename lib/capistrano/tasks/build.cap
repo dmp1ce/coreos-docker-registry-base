@@ -1,6 +1,11 @@
 #-*- mode: ruby -*-
 # vi:set ft=ruby :
 
+# Function to determine the current project name.
+def project_name(file_path)
+  project = File.dirname(file_path).match(/.*projects\/(.*)\/lib\/capistrano\/tasks.*/).captures.join()
+end
+
 # Systemd and docker related tasks
 desc "Restart local systemd services"
 after :build_docker_prepare_systemd, :restart_local_enable_service do
