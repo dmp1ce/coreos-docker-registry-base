@@ -8,7 +8,7 @@ end
 
 # Systemd and docker related tasks
 desc "Restart local systemd services"
-after :build_docker_prepare_systemd, :restart_local_enable_service do
+task :restart_local_enable_service do
   on roles(:all) do
     execute "sudo systemctl restart local-enable.service"
   end
