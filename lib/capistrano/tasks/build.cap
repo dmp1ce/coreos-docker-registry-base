@@ -13,3 +13,10 @@ task :restart_local_enable_service do
     execute "sudo systemctl restart local-enable.service"
   end
 end
+
+desc "Reload Systemd. Useful update systemd with added or removed units."
+task :reload_systemd do
+  on roles(:all) do
+    execute "sudo systemctl daemon-reload"
+  end
+end
