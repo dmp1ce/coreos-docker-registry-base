@@ -3,36 +3,25 @@
 
 # Systemd and docker related tasks
 desc "Build the #{project_name(__FILE__)} docker images"
-task "build_#{project_name(__FILE__)}_docker_images"do
+after "deploy:build_docker_images", "build_#{project_name(__FILE__)}_docker_images"do
   on roles(:all) do
     # Find all images and build them
     # Use 'project_name(__FILE__)' for tags to avoid naming conflicts.
-    execute "docker build -rm -t=\"nginx\" #{current_path}/projects/#{project_name(__FILE__)}/containers/nginx/."
+    execute "docker build -rm -t=\"nginx\" #{current_project_path(current_path, __FILE__)}/containers/nginx/."
   end
 end
 
-desc "Link systemd unit for #{project_name(__FILE__)}"
-task "link_#{project_name(__FILE__)}_systemd_unit" do
+desc "Copy systemd unit for #{project_name(__FILE__)}"
+after "deploy:copy_systemd_units", "copy_#{project_name(__FILE__)}_systemd_units" do
   on roles(:all) do
     # Prepend with 'project_name(__FILE__)' to avoid naming conflicts.
-    execute "sudo cp #{current_path}/projects/#{project_name(__FILE__)}/units/nginx-project.service /media/state/units/#{project_name(__FILE__)}-project.service"
-  end
-end
-
-desc "Prepare docker and systemd before starting them"
-after 'deploy:published', "build_docker_prepare_systemd_for_#{project_name(__FILE__)}" do
-  on roles(:all) do
-    Rake::Task["build_#{project_name(__FILE__)}_docker_images"].invoke
-    Rake::Task["link_#{project_name(__FILE__)}_systemd_unit"].invoke
+    execute "sudo cp #{current_project_path(current_path, __FILE__)}/units/nginx-project.service /media/state/units/#{project_name(__FILE__)}-project.service"
   end
 end
 
 desc "Restart #{project_name(__FILE__)} systemd units"
-after "build_#{project_name(__FILE__)}_docker_images", "restart_#{project_name(__FILE__)}_systemd_units" do
+after "deploy:restart_units", "restart_#{project_name(__FILE__)}_systemd_units" do
   on roles(:all) do
     execute "sudo systemctl restart #{project_name(__FILE__)}-project"
   end
 end
-
-# Add dependency for 'restart_local_enable_service'
-Rake::Task[:restart_local_enable_service].enhance ["build_docker_prepare_systemd_for_#{project_name(__FILE__)}"]

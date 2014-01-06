@@ -16,15 +16,21 @@ def current_project_path(current_path, file_path)
   return "#{current_path}/#{projects_path}/#{project_name(file_path)}"
 end
 
-# Systemd and docker related tasks
-desc "Reload units for restarting"
-task :reload_restart_units do
-  on roles(:all) do
-    Rake::Task["reload_systemd"].invoke
-    Rake::Task["restart_local_enable_service"].invoke
-  end
+# Create new flow for CoreOS deployment 
+desc "Establish CoreOS deploy flow"
+after "deploy:published", "deploy:coreos_deploy" do
+  Rake::Task["deploy:build_docker_images"].invoke
+  Rake::Task["deploy:copy_systemd_units"].invoke
+  Rake::Task["reload_systemd"].invoke
+  Rake::Task["restart_local_enable_service"].invoke
+  Rake::Task["deploy:restart_units"].invoke
 end
 
+task "deploy:build_docker_images"
+task "deploy:copy_systemd_units"
+task "deploy:restart_units"
+
+# Systemd and docker related tasks
 desc "Restart local systemd services"
 task :restart_local_enable_service do
   on roles(:all) do
@@ -36,12 +42,5 @@ desc "Reload Systemd. Useful update systemd with added or removed units."
 task :reload_systemd do
   on roles(:all) do
     execute "sudo systemctl daemon-reload"
-  end
-end
-
-# Dependency related tasks
-task :reload_restart_units_full_build do
-  on roles(:all) do
-    Rake::Task["reload_restart_units"].invoke
   end
 end
