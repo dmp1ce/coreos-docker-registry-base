@@ -44,3 +44,12 @@ task :reload_systemd do
     execute "sudo systemctl daemon-reload"
   end
 end
+
+# Clean
+desc "Remove old containers and images"
+task :remove_old do
+  on roles(:all) do
+    execute "docker ps -a | grep Exit | awk '{print $1}' | xargs --no-run-if-empty docker rm"
+    execute "docker images | tail -n +2 | grep '^<none>' | awk '{print $3}' | xargs --no-run-if-empty docker rmi"
+  end
+end
