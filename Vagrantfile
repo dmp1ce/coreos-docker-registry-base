@@ -15,14 +15,10 @@ Vagrant.configure("2") do |config|
     override.vm.box_url = "http://storage.core-os.net/coreos/amd64-generic/dev-channel/coreos_production_vagrant_vmware_fusion.box"
   end
 
-<<<<<<< HEAD
   if Vagrant.has_plugin?("vagrant-vbguest") then
     config.vbguest.auto_update = false
   end
-=======
-  config.vbguest.auto_update = false
 
   # Set IP so that docker containers can be accessed
   config.vm.network :private_network, ip: "192.168.50.4"
->>>>>>> Add files necessary to completely deploy nginx using 'bundle exec cap
 end
