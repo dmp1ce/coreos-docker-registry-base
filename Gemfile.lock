@@ -5,8 +5,6 @@ GEM
       i18n
       rake (>= 10.0.0)
       sshkit (>= 0.0.23)
-    capistrano-rsync (1.0.2)
-      capistrano (>= 3.0.0.pre14, < 4)
     i18n (0.6.9)
     net-scp (1.1.2)
       net-ssh (>= 2.6.5)
@@ -25,4 +23,3 @@ PLATFORMS
 
 DEPENDENCIES
   capistrano
-  capistrano-rsync

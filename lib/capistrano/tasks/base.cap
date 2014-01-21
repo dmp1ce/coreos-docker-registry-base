@@ -8,7 +8,7 @@ end
 
 # Function to determine the current project name.
 def project_name(file_path)
-  project = File.dirname(file_path).match(/.*projects\/(.*)\/lib\/capistrano\/tasks.*/).captures.join()
+  project = File.dirname(file_path).match(/.*projects\/(.*)\/tasks.*/).captures.join()
 end
 
 # Funtion to return the complete path to the current project. Requires the file location to be passed as a perameter.
@@ -16,9 +16,17 @@ def current_project_path(current_path, file_path)
   return "#{current_path}/#{projects_path}/#{project_name(file_path)}"
 end
 
+# Build tasks
+namespace :build do
+  desc "Build all docker images"
+  task :docker do
+    puts "Building docker images"
+  end
+end
+
 # Create new flow for CoreOS deployment 
 desc "Establish CoreOS deploy flow"
-after "deploy:published", "deploy:coreos_deploy" do
+task "deploy:coreos_deploy" do
   Rake::Task["deploy:build_docker_images"].invoke
   Rake::Task["deploy:copy_systemd_units"].invoke
   Rake::Task["reload_systemd"].invoke

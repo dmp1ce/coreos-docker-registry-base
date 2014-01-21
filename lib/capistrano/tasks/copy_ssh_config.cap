@@ -1,4 +1,4 @@
-before 'deploy:check', 'deploy:copy_ssh_config'
+#before 'deploy:starting', 'deploy:copy_ssh_config'
 
 namespace :deploy do
   desc "Copy ssh config"

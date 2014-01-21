@@ -1,8 +1,9 @@
 # Load DSL and Setup Up Stages
 require 'capistrano/setup'
 
-# Includes default deployment tasks
-require 'capistrano/deploy'
+# Add capistrano flow, but not deploy
+require 'capistrano/install'
+require 'capistrano/framework'
 
 # Includes tasks from other gems included in your Gemfile
 #
@@ -24,4 +25,5 @@ require 'capistrano/deploy'
 
 # Loads custom tasks from `lib/capistrano/tasks' if you have any defined.
 Dir.glob('lib/capistrano/tasks/*.cap').each { |r| import r }
-Dir.glob('projects/**/lib/capistrano/tasks/*.cap').each { |r| import r }
+# Also load from project specific tasks
+Dir.glob('projects/**/tasks/*.cap').each { |r| import r }
