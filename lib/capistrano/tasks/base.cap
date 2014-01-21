@@ -12,8 +12,12 @@ def project_name(file_path)
 end
 
 # Funtion to return the complete path to the current project. Requires the file location to be passed as a perameter.
-def current_project_path(current_path, file_path)
-  return "#{current_path}/#{projects_path}/#{project_name(file_path)}"
+def current_project_path(file_path)
+  return "/home/core/#{projects_path}/#{project_name(file_path)}"
+end
+
+def shared_path(file_path)
+  return "#{current_project_path(file_path)}/shared"
 end
 
 # Build tasks
@@ -22,6 +26,11 @@ namespace :build do
   task :docker do
     puts "Building docker images"
   end
+end
+
+desc "Build everything"
+task :build do
+  puts "TODO: Building everything..."
 end
 
 # Create new flow for CoreOS deployment 
