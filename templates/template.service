@@ -1,0 +1,10 @@
+[Unit]
+Description=Service Template
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker run base/arch
+
+[Install]
+WantedBy=local.target

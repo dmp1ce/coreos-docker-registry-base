@@ -70,3 +70,21 @@ task :remove_old do
     execute "docker images | tail -n +2 | grep '^<none>' | awk '{print $3}' | xargs --no-run-if-empty docker rmi"
   end
 end
+
+# Framework
+desc "Create new project framework from template files"
+task :new_project, :project_name do |t, args|
+  project_name = args[:project_name]
+
+  run_locally do
+    # Create the directories for the new project
+    execute "mkdir -p projects/#{project_name}/containers/#{project_name}"
+    execute "mkdir -p projects/#{project_name}/units"
+    execute "mkdir -p projects/#{project_name}/tasks"
+
+    # Copy over template files
+    execute "cp templates/Dockerfile projects/#{project_name}/containers/#{project_name}"
+    execute "cp templates/build.cap projects/#{project_name}/tasks"
+    execute "cp templates/template.service projects/#{project_name}/units/#{project_name}.service"
+  end
+end

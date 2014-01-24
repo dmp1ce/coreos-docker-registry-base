@@ -1,0 +1,71 @@
+#-*- mode: ruby -*-
+# vi:set ft=ruby :
+
+namespace :build do
+  desc "Build the #{project_name(__FILE__)} docker images"
+  after :docker, "docker_#{project_name(__FILE__)}" do
+    puts "Building #{project_name(__FILE__)} containers"
+
+    # Create build directory
+    on roles(:all) do |host|
+      execute "mkdir -p #{current_project_path(__FILE__)}/build"
+    end
+
+    # Copy files
+    run_locally do
+      # Use the ssh or rsync options so that this doesn't file on non vagrant stages
+      execute "rsync -av --delete -e\"vagrant ssh --\" ./projects/#{project_name(__FILE__)}/containers :#{current_project_path(__FILE__)}/build"
+    end
+
+    # Build containers
+    on roles(:all) do |host|
+      execute "docker build -rm -t=\"#{project_name(__FILE__)}\" #{current_project_path(__FILE__)}/build/containers/#{project_name(__FILE__)}"
+    end
+
+  end
+end
+
+namespace :deploy do
+  desc "Deploy #{project_name(__FILE__)}"
+  task "#{project_name(__FILE__)}" do
+    Rake::Task["deploy:updating_#{project_name(__FILE__)}"].invoke
+    Rake::Task["reload_systemd"].invoke
+    Rake::Task["restart_local_enable_service"].invoke
+    Rake::Task["deploy:restarting_#{project_name(__FILE__)}"].invoke
+  end
+
+  desc "Update #{project_name(__FILE__)}"
+  after :updating, "updating_#{project_name(__FILE__)}" do
+    puts "Deploying #{project_name(__FILE__)}"
+
+    # Pull docker image
+    
+    # Copy unit files
+    on roles(:all) do |host|
+      execute "mkdir -p #{current_project_path(__FILE__)}/deploy/units"
+    end
+    # Use the ssh or rsync options so that this doesn't file on non vagrant stages
+    run_locally do
+      execute "rsync -av --delete -e\"vagrant ssh --\" ./projects/#{project_name(__FILE__)}/units/ :#{current_project_path(__FILE__)}/deploy/units"
+      execute "rsync -av --delete -e\"vagrant ssh --\" ./projects/#{project_name(__FILE__)}/scripts/ :#{current_project_path(__FILE__)}/deploy/scripts"
+    end
+
+    on roles(:all) do |host|
+      # Copy systemd files
+      execute "sudo cp -r #{current_project_path(__FILE__)}/deploy/units/* /media/state/units"
+
+      # Convert placeholder variables
+      execute "sudo sed -i 's&%current_project_path%&#{current_project_path(__FILE__)}&g' /media/state/units/#{project_name(__FILE__)}.service"
+    end
+  end
+
+  desc "Publish #{project_name(__FILE__)}"
+  after :publishing, "restarting_#{project_name(__FILE__)}" do
+    puts "Publishing #{project_name(__FILE__)}"
+
+    # Restart systemd services
+    on roles(:all) do
+      execute "sudo systemctl restart #{project_name(__FILE__)}"
+    end
+  end
+end
