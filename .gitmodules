@@ -1,0 +1,3 @@
+[submodule "projects/registry"]
+	path = projects/registry
+	url = git@github.com:dmp1ce/coreos-docker-registry.git
