@@ -58,25 +58,4 @@ set :ssh_options, {
 #   }
 # setting per server overrides global ssh_options
 
-set :rsync_stage, '.'
-#Rake::Task["rsync:stage"].clear
 set :rsync_options, ["-av", "-e\"vagrant ssh --\""]
-set :rsync_cache, nil
-
-# Override rsync task
-#Rake::Task["rsync"].clear
-#desc "Stage and rsync to the server"
-#task :rsync => %w[rsync:stage] do
-#  roles(:all).each do |role|
-#    user = role.user + "@" if !role.user.nil?
-#
-#    rsync = %w[rsync]
-#    rsync.concat fetch(:rsync_options)
-#    rsync << fetch(:rsync_stage) + "/"
-#    rsync << ":#{release_path}"
-#
-#    Kernel.system *rsync.join(" ")
-#  end
-#end
-
-# fetch(:default_env).merge!(rails_env: :vagrant)
