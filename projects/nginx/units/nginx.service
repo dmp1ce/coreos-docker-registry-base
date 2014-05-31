@@ -1,0 +1,12 @@
+[Unit]
+Description=nGinx Service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=%current_project_path%/deploy/scripts/start_nginx.sh
+ExecStop=%current_project_path%/deploy/scripts/stop_nginx.sh
+TimeoutStartSec=10s
+
+[Install]
+WantedBy=local.target
